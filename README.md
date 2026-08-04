@@ -12,6 +12,21 @@ A small quantitative finance project built to develop Python skills, comparing t
 | `main.py` | Slider-based tool for visualising how Black-Scholes call/put price changes with strike, rate, volatility, and expiry |
 | `requirements.txt` | Dependencies |
 
+## How to Run
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Then run either tool from the command line:
+
+```bash
+python convergence_plot.py
+python black_scholes_interactive.py
+```
+
 ## Models
 
 ### Black-Scholes
