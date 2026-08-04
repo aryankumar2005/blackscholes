@@ -35,7 +35,7 @@ Discretises time into N steps, builds up-and-down jump sizes `u`, `d` and a risk
 
 As N increases, the binomial price converges to the Black-Scholes price as expected:
 
-![Convergence results](plots/convergence_plot.png)
+![Convergence results](convergence_plot.png)
 
 
 
