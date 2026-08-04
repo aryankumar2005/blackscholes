@@ -2,7 +2,7 @@
 
 A small quantitative finance project built to develop Python skills, comparing two ways of pricing a European vanilla call option: the closed-form Black-Scholes solution, and a numerical N-step binomial tree. The project demonstrates that the binomial method converges to the Black-Scholes price as the number of steps increases, and includes interactive tools for exploring both models.
 
-## Contents
+## Files
 
 | File | Description |
 |---|---|
@@ -24,7 +24,7 @@ Then run either tool from the command line:
 
 ```bash
 python convergence_plot.py
-python black_scholes_interactive.py
+python main.py
 ```
 
 ## Models
