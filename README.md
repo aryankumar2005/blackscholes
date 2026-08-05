@@ -34,7 +34,9 @@ python main.py
 Prices a European call in closed form:
 
 d1 = [ln(S/E) + (r + sigma²/2) * tau] / (sigma * sqrt(tau))
+
 d2 = d1 - sigma * sqrt(tau)
+
 Call = S * N(d1) - E * e^(-r*tau) * N(d2)
 
 where `tau = T - t_0` and `N(.)` is the standard normal CDF. The put price follows from put-call parity.
