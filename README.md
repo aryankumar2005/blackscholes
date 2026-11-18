@@ -1,6 +1,6 @@
 # Black-Scholes and binomial tree option pricer (Python)
 
-A project I did after my degree to get better at Python, since I'd mostly used MATLAB at university. It prices a European call option in two ways and checks that they agree.
+A project I did after my degree using ideas from my Mathematical Finance module to get better at Python, since I'd mostly used MATLAB at university. It prices a European call option in two ways and checks that they agree.
 
 - `pricing/black_scholes.py` uses the Black-Scholes formula. The put price comes from put-call parity.
 - `pricing/binomial_method.py` uses an N-step binomial tree. The share price goes up or down at each step, the option's value is worked out at the end of the tree, and then it's worked backwards to get the price today.
