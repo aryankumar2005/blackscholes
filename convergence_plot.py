@@ -1,65 +1,43 @@
+# Compares the binomial tree price with the Black-Scholes price
+# to check that the binomial price gets closer as the number of steps N goes up
+
 import matplotlib.pyplot as plt
-from matplotlib.widgets import TextBox, Button
-from pricing.binomial_method import binomial_method 
 from pricing.black_scholes import black_scholes
+from pricing.binomial_method import binomial_method
 
-"""
-    Computes and plots the absolute pricing error between the binomial method and Black-Scholes as a function of the number of steps (N)
+# ask the user for the inputs
+S = float(input("Share price: "))
+E = float(input("Strike price: "))
+r = float(input("Interest rate (e.g. 0.05 for 5%): "))
+sigma = float(input("Volatility (e.g. 0.2 for 20%): "))
+T = float(input("Time to expiry in years: "))
+t_0 = 0   # buying the option today
 
-    """
-t_0 = 0
+# Black-Scholes price (the exact answer)
+bs_price, put_price = black_scholes(S, E, r, sigma, T, t_0)
+print("Black-Scholes call price:", round(bs_price, 4))
 
-fig, ax = plt.subplots()
-plt.subplots_adjust(bottom=0.4)
+# numbers of steps to try in the binomial tree
+N_values = [3, 10, 25, 50, 100, 250, 500, 1000, 2000]
 
-ax_S = plt.axes([0.3, 0.25, 0.3, 0.05])
-box_S = TextBox(ax_S, "Share Price: ", initial="100")
+# list to store the error for each N
+errors = []
 
-ax_E = plt.axes([0.3, 0.2, 0.3, 0.05])
-box_E = TextBox(ax_E, "Strike Price: ", initial="105")
+for N in N_values:
+    # binomial price with N steps
+    binomial_price = binomial_method(S, E, r, sigma, T, t_0, N)
+    # how far it is from the Black-Scholes price
+    error = abs(binomial_price - bs_price)
+    errors.append(error)
+    print("N =", N, "  binomial price:", round(binomial_price, 4), "  error:", round(error, 5))
 
-ax_r = plt.axes([0.3, 0.15, 0.3, 0.05])
-box_r = TextBox(ax_r, "Interest Rate:", initial = "0.1")
-
-ax_sigma = plt.axes([0.3, 0.1, 0.3, 0.05])
-box_sigma = TextBox(ax_sigma, "Volatility:", initial = "0.1")
-
-ax_T = plt.axes([0.3, 0.05, 0.3, 0.05])
-box_T = TextBox(ax_T, "Expiry:", initial = "3")
-
-def submit(event):
-    S = float(box_S.text)
-    E = float(box_E.text)
-    r = float(box_r.text)
-    sigma = float(box_sigma.text)
-    T = float(box_T.text)
-
-
-
-
-
-    _, _, bs_price, _ = black_scholes(S, E, r, sigma, T, t_0)
-
-    print(f"The fair price for a European Vanilla Call on this asset is" ,bs_price)
-    N_values = [3, 10, 25, 50, 100, 250, 500, 1000, 2000]
-
-    binomial_prices = [binomial_method(S, E, r, sigma, T, t_0, N) for N in N_values]
-    errors = [abs(bp - bs_price) for bp in binomial_prices]
-
-
-
-    ax.clear()
-    ax.plot(N_values, errors, marker='o')
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlabel('Number of steps, N')
-    ax.set_ylabel('|Binomial - Black-Scholes|')
-    ax.set_title('Convergence of Binomial Tree to Black-Scholes')
-    ax.grid(alpha=0.3, which = 'both')
-    fig.canvas.draw_idle()
-
-
-ax_button = plt.axes([0.75, 0.1, 0.2, 0.06])
-run_button = Button(ax_button, "Calculate")
-run_button.on_clicked(submit)
+# plot the error against N
+# log scales on both axes because N and the error both change by a lot
+plt.plot(N_values, errors, marker='o')
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel('Number of steps, N')
+plt.ylabel('|Binomial - Black-Scholes|')
+plt.title('Convergence of the binomial tree to Black-Scholes')
+plt.grid(True)
 plt.show()
