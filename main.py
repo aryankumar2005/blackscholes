@@ -1,148 +1,40 @@
-import numpy as np
+# Plots the Black-Scholes call price against the share price
+# for a few different volatilities, to see how volatility changes the price
+
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button
 from pricing.black_scholes import black_scholes
 
-"""
-    Computes and plots the Black Scholes diagram with input sliders for Exercise Price, Interest Rate,
-    Volatility, Expiry Date
-
-"""
-
-
 # Parameters
-initial_S = 100
-initial_strike = 105
-initial_sigma = 0.3
-initial_expiry = 3
-t_0 = 0
-initial_rate = 0.05
+E = 105      # strike price
+r = 0.05     # interest rate
+T = 3        # expiry date (years)
+t_0 = 0      # purchase date (years)
 
-S_values = np.linspace(50, 150, 100)
+# volatilities to compare
+sigma_values = [0.1, 0.3, 0.5]
 
+# share prices from 50 to 150
+S_values = []
+for S in range(50, 151):
+    S_values.append(S)
 
-# Function to calculate option prices
+# for each volatility, work out the call price at every share price and plot it
+for sigma in sigma_values:
+    call_prices = []
+    for S in S_values:
+        call_price, put_price = black_scholes(S, E, r, sigma, T, t_0)
+        call_prices.append(call_price)
+    plt.plot(S_values, call_prices, label="volatility = " + str(sigma))
 
-def calculate_prices(rate, sigma, strike, expiry):
+# what the option would be worth if it expired today: max(S - E, 0)
+payoff = []
+for S in S_values:
+    payoff.append(max(S - E, 0))
+plt.plot(S_values, payoff, 'k--', label="payoff at expiry")
 
-    prices = []
-
-    for stock_price in S_values:
-
-        _, _, price, _ = black_scholes(
-            stock_price,
-            strike,
-            rate,
-            sigma,
-            expiry,
-            t_0
-        )
-
-        if np.isfinite(price):
-            prices.append(price)
-        else:
-            prices.append(0)
-        
-       
-
-    return prices
-
-
-# Initial graph
-
-fig, ax = plt.subplots(figsize=(8,5))
-
-plt.subplots_adjust(bottom=0.2)
-
-initial_prices = calculate_prices(initial_rate, initial_sigma, initial_strike, initial_expiry)
-
-line, = ax.plot(
-    S_values,
-    initial_prices,
-    linewidth=2,
-    label="Black-Scholes Call Price"
-)
-
-ax.set_xlabel("Share Price")
-ax.set_ylabel("Option Price")
-ax.set_title("Black-Scholes Call Option Value")
-ax.grid(True)
-ax.legend()
-
-
-# Sliders
-
-plt.subplots_adjust(bottom=0.25)
-
-ax_rate = plt.axes([0.25, 0.15, 0.5, 0.03])
-
-rate_slider = Slider(
-    ax_rate,
-    "Interest Rate",
-    -0.01,
-    0.2,
-    valinit=initial_rate
-)
-
-ax_sigma = plt.axes([0.25,0.10,0.5,0.03])
-
-sigma_slider = Slider(
-    ax_sigma,
-    "Volatility",
-    0.05,
-    1,
-    valinit=initial_sigma
-)
-
-ax_strike = plt.axes([0.25, 0.05, 0.5, 0.03])
-
-strike_slider = Slider(
-    ax_strike,
-    "Strike Price",
-    50,
-    200,
-    valinit=initial_strike
-)
-
-ax_expiry = plt.axes([0.25, 0, 0.5, 0.03])
-
-expiry_slider = Slider(
-    ax_expiry,
-    "Expiry Date",
-    0.01,
-    10950,
-    valinit=initial_expiry
-)
-
-
-# Update function
-
-def update(value):
-
-    new_rate = rate_slider.val
-    new_sigma = sigma_slider.val
-    new_strike = strike_slider.val
-    new_expiry = expiry_slider.val
-    new_prices = calculate_prices(new_rate, new_sigma, new_strike, new_expiry)
-
-    line.set_ydata(new_prices)
-    ax.relim()
-    ax.autoscale_view()
-
-    
-
-    ax.set_xlabel("Share Price")
-    ax.set_ylabel("Option Price")
-    ax.set_title("Black-Scholes Call Option Value")
-    ax.grid(True)
-    ax.legend()
-
-    fig.canvas.draw_idle()
-
-
-rate_slider.on_changed(update)
-sigma_slider.on_changed(update)
-strike_slider.on_changed(update)
-expiry_slider.on_changed(update)
-
+plt.xlabel("Share price")
+plt.ylabel("Call option price")
+plt.title("Black-Scholes call price (strike 105, 3 years to expiry)")
+plt.legend()
+plt.grid(True)
 plt.show()
