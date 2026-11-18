@@ -1,48 +1,51 @@
+# Binomial tree method for pricing a European call option
+
 import math
 
-def binomial_method(S: float, E: float, r: float, sigma: float, T: float, t_0: float, N: int) -> float:
-    
-    """
-    Pricing a European call option using an N-step binomial tree, using i up-jumps, (i-N) down-jumps
 
-    Parameters:
-    
-    S: Share Price
-    E: Strike Price
-    r: Risk Free Interest Rate
-    sigma: Volatility
-    T: Expiry Date
-    t_0: Purchase Date
-    N: Number of time steps
+def binomial_method(S, E, r, sigma, T, t_0, N):
+    # Inputs are the same as black_scholes, plus:
+    # N - number of time steps in the tree
+    #
+    # Output:
+    # the estimated fair price of the call at t_0
 
-    Returns:
+    # length of each time step
+    delta_t = (T - t_0) / N
 
-    The fair price of the call at t_0 (estimate), float
-    """
-    
-    delta_t = (T - t_0) / N 
+    # A is used to work out the size of the up and down jumps
     A = 0.5 * (math.exp(-r * delta_t) + math.exp((r + sigma**2) * delta_t))
-    
-    # Up Jump Formula
-    u = A + math.sqrt(A**2 - 1) 
-    # Down Jump Formula             
-    d = 1 / u     
-    # Probability Formula                           
-    p = (math.exp(r * delta_t) - d) / (u - d) 
-    
 
+    # up jump
+    u = A + math.sqrt(A**2 - 1)
+    # down jump
+    d = 1 / u
+    # risk neutral probability of an up jump
+    p = (math.exp(r * delta_t) - d) / (u - d)
+
+    # discount factor for one time step
+    discount = math.exp(-r * delta_t)
+
+    # make a list of the payoffs at the end of the tree
+    # there are N+1 end points, and i is the number of up jumps to get there
     payoffs = []
     for i in range(N + 1):
-       S_final = S * u**i * d**(N - i)
-       payoff = max(S_final - E, 0)
-       payoffs.append(payoff)
+        # share price at this end point
+        S_final = S * u**i * d**(N - i)
+        # payoff of a call is share price minus strike price, or 0 if that is negative
+        payoff = max(S_final - E, 0)
+        payoffs.append(payoff)
 
-    for _ in range(N):
+    # now go backwards through the tree one step at a time
+    for step in range(N):
+        # list to store the values one step earlier
         new_payoffs = []
+        # each value is the discounted average of the two values after it
         for i in range(len(payoffs) - 1):
-            V = math.exp(-r * delta_t) * (p * payoffs[i + 1] + (1 - p) * payoffs[i])
+            V = discount * (p * payoffs[i + 1] + (1 - p) * payoffs[i])
             new_payoffs.append(V)
+        # replace the old list with the new one
         payoffs = new_payoffs
 
+    # after going back N steps there is only one value left, which is the price today
     return payoffs[0]
-
